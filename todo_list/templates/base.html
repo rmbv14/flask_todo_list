@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+</head>
+
+<body class="min-h-screen flex items-center justify-center bg-black">
+    <div class="flex flex-col text-white bg-gray-900 rounded-lg w-[1500px] h-[700px] p-8 mt-10">
+        <h1 class="text-white text-center text-3xl font-bold p-4">To-Do List</h1>
+        <div class="overflow-y-auto max-h-[300px] relative">
+            <table class="table-auto w-full text-left">
+                <thead class="sticky top-0 bg-gray-400 border-b-2 border-gray-600 text-xl">
+                    <tr>
+                        <th class="px-2 py-2">Task Name</th>
+                        <th class="px-2 py-2">Status</th>
+                        <th class="px-2 py-2">Due Date</th>
+                        <th class="px-2 py-2">Days Left</th>
+                        <th class="px-2 py-2">Last Changed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in tasks %}
+                    <tr class="{% if task.status == 'Done' %}bg-green-900 bg-opacity-30{% endif %}">
+                        <td>{{ task.name }}</td>
+                        <td>
+                          <form method="POST" action="{{ url_for('task_status') }}">
+                            <div class="relative w-full">
+                              <select name="status"
+                                  class="w-full p-2 bg-gray-900 rounded-md text-white appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 pr-10"
+                                  onchange="this.form.submit()">
+                                  <option value="Pending" {% if task.status == 'Pending' %}selected{% endif %}>Pending</option>
+                                  <option value="Done" {% if task.status == 'Done' %}selected{% endif %}>Done</option>
+                              </select>
+                              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                              </div>
+                            </div>
+                            <input type="hidden" name="task_id" value="{{ loop.index0 }}">
+                          </form>
+                        </td>
+                        <td>
+                          <form method="POST" action="{{ url_for('update_due_date') }}" class="due-date-form">
+                            <input type="text" 
+                                   name="due_date" 
+                                   class="due-date-picker bg-transparent cursor-pointer text-white focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-2"
+                                   value="{{ task.due_date if task.due_date else '' }}"
+                                   placeholder="Set due date...">
+                            <input type="hidden" name="task_id" value="{{ loop.index0 }}">
+                          </form>
+                        </td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        flatpickr(".due-date-picker", {
+            enableTime: false,
+            dateFormat: "Y-m-d",
+            theme: "dark",
+            onChange: function(selectedDates, dateStr, instance) {
+                instance.element.closest('form').submit();
+            }
+        });
+    });
+    </script>
+</body>
+
+</html>
