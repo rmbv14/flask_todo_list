@@ -9,6 +9,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='favicon-16x16.png') }}">
     <style>
       .resizer {
         user-select: none;
@@ -29,7 +32,7 @@
       <div class="mb-6">
         <span class="text-lg font-bold">To-Do List</span>
       </div>
-      <ul class="flex-1 space-y-2 mb-2">
+      <ul class="space-y-2">
         {% for name in pages %}
           <li class="flex items-center gap-x-1 min-h-[48px]">
             <a href="{{ url_for('show_page', page_name=name) }}"
@@ -57,7 +60,7 @@
           <form method="POST" action="{{ url_for('add_page') }}">
             <input type="hidden" name="new_page" value="Untitled page">
             <button type="submit"
-                    class="flex items-center w-full px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-400 rounded font-semibold text-lg mt-2"
+                    class="flex items-center w-full px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-400 rounded font-semibold text-lg"
                     style="border: none;">
               <span class="mr-2 text-2xl">+</span>
               <span class="font-normal">Add page</span>
