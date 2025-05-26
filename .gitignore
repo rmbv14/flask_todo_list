@@ -1,0 +1,15 @@
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore virtual environments
+venv/
+.env/
+
+# Ignore data files (add your data file names here if you use them)
+data.json
+tasks.db
+*.sqlite3
+
+# Ignore OS files
+.DS_Store 
