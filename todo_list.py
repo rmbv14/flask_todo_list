@@ -7,7 +7,7 @@ todo_list = Flask(__name__)
 
 DATA_FILE = 'data.json'
 
-# Load and save functions
+#function for loading the pages
 def load_pages():
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, 'r') as f:
@@ -18,13 +18,15 @@ def load_pages():
         "Extracurriculars": [{'name': 'Basketball practice', 'status': 'Pending', 'due_date': None, 'note': ''}]
     }
 
+#saves the data/changes in the website in the data.json file
 def save_pages():
     with open(DATA_FILE, 'w') as f:
-        json.dump(pages, f)
+        json.dump(pages, f, indent=4)
 
-# Load pages from file
+#stores the pages
 pages = load_pages()
 
+#function for creating the format for dates
 @todo_list.template_filter('datetimeformat')
 def datetimeformat(value, format='%B %d, %Y'):
     try:
@@ -32,19 +34,28 @@ def datetimeformat(value, format='%B %d, %Y'):
     except Exception:
         return value
 
+#automatically returns/renders the pages
 @todo_list.route('/')
 def home():
     first_page = next(iter(pages))
     return redirect(url_for('show_page', page_name=first_page))
 
-@todo_list.route('/page/<page_name>')
+#displays the tasks under the pages
+@todo_list.route('/<page_name>')
 def show_page(page_name):
     status_filter = request.args.get('status_filter')
     today = datetime.today().date()
     tasks = pages.get(page_name, [])
     filtered_tasks = tasks
+    filtered_tasks = tasks
     if status_filter:
         filtered_tasks = [task for task in tasks if task['status'] == status_filter]
+    def sort_key(task):
+        try:
+            return datetime.strptime(task['due_date'], '%Y-%m-%d') if task.get('due_date') else datetime.max
+        except:
+            return datetime.max
+    filtered_tasks.sort(key=sort_key)
     for task in filtered_tasks:
         due_str = task.get('due_date')
         if due_str:
@@ -57,6 +68,7 @@ def show_page(page_name):
             task['days_left'] = None
     return render_template('base.html', tasks=filtered_tasks, page_name=page_name, pages=pages.keys())
 
+#function for adding a page
 @todo_list.route('/add_page', methods=['POST'])
 def add_page():
     new_page = request.form.get('new_page')
@@ -65,7 +77,8 @@ def add_page():
         save_pages()
     return redirect(url_for('show_page', page_name=new_page))
 
-@todo_list.route('/page/<page_name>/add_task', methods=['POST'])
+#function for adding a new task
+@todo_list.route('/<page_name>/add_task', methods=['POST'])
 def add_task(page_name):
     new_task = request.form.get('newTask')
     if new_task:
@@ -73,7 +86,7 @@ def add_task(page_name):
         save_pages()
     return redirect(url_for('show_page', page_name=page_name))
 
-@todo_list.route('/page/<page_name>/task_status', methods=['POST'])
+@todo_list.route('/<page_name>/task_status', methods=['POST'])
 def task_status(page_name):
     task_id = int(request.form.get('task_id'))
     new_status = request.form.get('status')
@@ -82,7 +95,7 @@ def task_status(page_name):
         save_pages()
     return redirect(url_for('show_page', page_name=page_name))
 
-@todo_list.route('/page/<page_name>/update_due_date', methods=['POST'])
+@todo_list.route('/<page_name>/update_due_date', methods=['POST'])
 def update_due_date(page_name):
     task_id = int(request.form.get('task_id'))
     due_date = request.form.get('due_date')
@@ -91,7 +104,7 @@ def update_due_date(page_name):
         save_pages()
     return redirect(url_for('show_page', page_name=page_name))
 
-@todo_list.route('/page/<page_name>/update_task_name', methods=['POST'])
+@todo_list.route('/<page_name>/update_task_name', methods=['POST'])
 def update_task_name(page_name):
     task_id = int(request.form.get('task_id'))
     new_name = request.form.get('task_name')
@@ -100,7 +113,7 @@ def update_task_name(page_name):
         save_pages()
     return redirect(url_for('show_page', page_name=page_name))
 
-@todo_list.route('/page/<page_name>/update_note', methods=['POST'])
+@todo_list.route('/<page_name>/update_note', methods=['POST'])
 def update_note(page_name):
     task_id = int(request.form.get('task_id'))
     note = request.form.get('note')
@@ -109,7 +122,7 @@ def update_note(page_name):
         save_pages()
     return redirect(url_for('show_page', page_name=page_name))
 
-@todo_list.route('/page/<page_name>/delete_task', methods=['POST'])
+@todo_list.route('/<page_name>/delete_task', methods=['POST'])
 def delete_task(page_name):
     task_id = int(request.form.get('task_id'))
     if 0 <= task_id < len(pages[page_name]):
