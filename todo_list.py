@@ -7,9 +7,10 @@ todo_list = Flask(__name__)
 
 DATA_FILE = 'data.json'
 
-#function for loading the pages
+#function for loading the site itself
 def load_pages():
     if os.path.exists(DATA_FILE):
+        #opens the file as read
         with open(DATA_FILE, 'r') as f:
             return json.load(f)
     return {
@@ -20,6 +21,7 @@ def load_pages():
 
 #saves the data/changes in the website in the data.json file
 def save_pages():
+    #opens the file as write for creating changes
     with open(DATA_FILE, 'w') as f:
         json.dump(pages, f, indent=4)
 
@@ -48,14 +50,18 @@ def show_page(page_name):
     tasks = pages.get(page_name, [])
     filtered_tasks = tasks
     filtered_tasks = tasks
+    #allows for filtering tasks based on status
     if status_filter:
         filtered_tasks = [task for task in tasks if task['status'] == status_filter]
+    #function that sorts the tasks based on due date
     def sort_key(task):
         try:
             return datetime.strptime(task['due_date'], '%Y-%m-%d') if task.get('due_date') else datetime.max
         except:
             return datetime.max
+    #calls the sort function to automatically sort the tasks by date
     filtered_tasks.sort(key=sort_key)
+    #counts the days before/after the deadline of a task
     for task in filtered_tasks:
         due_str = task.get('due_date')
         if due_str:
