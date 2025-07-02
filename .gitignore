@@ -4,4 +4,5 @@ __pycache__/
 data.json
 tasks.db
 *.sqlite3
-.DS_Store 
+.DS_Store
+.gitignore
